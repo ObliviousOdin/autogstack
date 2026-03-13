@@ -1,0 +1,36 @@
+name: Autogstack Self-Evolution
+
+on:
+  schedule:
+    - cron: '0 4 * * *'      # Runs every day at 4 AM UTC
+  workflow_dispatch:         # Click "Run workflow" button anytime
+
+permissions:
+  contents: write
+
+jobs:
+  evolve:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Git
+        run: |
+          git config user.name "autogstack-bot"
+          git config user.email "bot@autogstack.dev"
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Anthropic SDK
+        run: pip install anthropic
+
+      - name: Run Evolution Cycle
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python autobot/evolve_github.py
